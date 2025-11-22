@@ -2,20 +2,13 @@
 session_start();
 require_once('include/config.php');
 
-// admin login check
-if (!isset($_SESSION['alogin'])) {
+// employee login check
+if (!isset($_SESSION['elogin'])) {
     header('location: index.php');
     exit();
 }
 
-// Get employee ID 
-if (!isset($_GET['id']) || empty($_GET['id'])) {
-    header('location: manageemployee.php');
-    exit();
-}
-
-$userId = intval($_GET['id']);
-
+$userId = $_SESSION['eid'];
 $error = '';
 $success = '';
 
@@ -28,7 +21,8 @@ try {
     $employee = $query->fetch(PDO::FETCH_ASSOC);
 
     if (!$employee) {
-        header('location: manageemployee.php');
+        session_destroy();
+        header('location: index.php');
         exit();
     }
 } catch (PDOException $e) {
@@ -45,7 +39,7 @@ function validatePhone($phone) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Validate input
+    // input data
         $fullname = trim($_POST['full_name']);
         $mobileno = trim($_POST['mobile_no']);
         $gender = trim($_POST['gender']);
@@ -53,7 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $address = trim($_POST['address']);
         $city = trim($_POST['city']);
         
-        // Validation
+        // empty field Validation
         if (empty($fullname) || empty($mobileno) || empty($dob) || empty($address) || empty($city)) {
             $error = "All fields are required";
         } 
@@ -65,22 +59,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         elseif (!validatePhone($mobileno)) {
             $error = "Invalid phone number format. Must be 11 digits";
         }
-        // Check for duplicate mobile number
-       
+        // duplicate mobile number
+        
             $sql = "SELECT COUNT(*) FROM users WHERE mobile_no = :mobileno AND id != :userId";
             $query = $dbh->prepare($sql);
             $query->bindParam(':mobileno', $mobileno, PDO::PARAM_STR);
             $query->bindParam(':userId', $userId, PDO::PARAM_INT);
             $query->execute();
             if ($query->fetchColumn() > 0) {
-                $error = "This mobile number is already registered with another employee";
+                $error = "This mobile number is already registered with another account";
             }
         
         // Date of birth validation
         elseif (strtotime($dob) > strtotime('today')) {
             $error = "Date of Birth cannot be in the future";
         } elseif (strtotime($dob) > strtotime('-18 years')) {
-            $error = "Employee must be at least 18 years old";
+            $error = "You must be at least 18 years old";
         } elseif (strtotime($dob) < strtotime('-100 years')) {
             $error = "Please enter a valid Date of Birth";
         }
@@ -110,8 +104,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $query->bindParam(':userId', $userId, PDO::PARAM_INT);
                 
                 if ($query->execute()) {
-                    $_SESSION['success'] = 'Employee record updated successfully';
-                    header('location: manageemployee.php');
+                    // Update session name if changed
+                    $_SESSION['ename'] = $fullname;
+                    $_SESSION['success'] = 'Profile updated successfully';
+                    header('location: profile.php');
                     exit();
                 } else {
                     $error = 'Something went wrong. Please try again';
@@ -126,7 +122,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Edit Employee | TaskHub</title>
+  <title>Edit Profile | TaskHub</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -366,41 +362,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <div class="profile">
       <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" alt="Profile">
-      <p>Admin</p>
+      <p><?php echo htmlspecialchars($_SESSION['ename']); ?></p>
     </div>
 
     <nav class="nav-links" id="navLinks">
       <a href="dashboard.php" class="trigger"><span class="material-icons">dashboard</span> Dashboard</a>
 
-      <!-- Manage Employees -->
-      <a class="trigger active" data-bs-toggle="collapse" href="#employeeMenu" role="button" aria-expanded="true" aria-controls="employeeMenu">
-        <span class="material-icons">group</span>
-        <span>Manage Employees</span>
-        <span class="ms-auto material-icons">chevron_right</span>
-      </a>
-      <div class="collapse show submenu" id="employeeMenu">
-        <a href="addemployee.php">Add Employee</a>
-        <a href="manageemployee.php">Manage Employees</a>
-      </div>
-
-      <!-- Assign Task -->
-      <a class="trigger" href="assigntask.php">
-        <span class="material-icons">assignment</span>
-        <span>Assign Task</span>
+      <a href="mytasks.php" class="trigger">
+        <span class="material-icons">task</span>
+        <span>My Tasks</span>
       </a>
 
-      <!-- All Tasks-->
-      <a class="trigger" data-bs-toggle="collapse" href="#allTasksMenu" role="button" aria-expanded="false" aria-controls="allTasksMenu">
-        <span class="material-icons">list</span>
-        <span>All Tasks</span>
-        <span class="ms-auto material-icons">chevron_right</span>
+      <a href="profile.php" class="trigger active">
+        <span class="material-icons">person</span>
+        <span>My Profile</span>
       </a>
-      <div class="collapse submenu" id="allTasksMenu">
-        <a href="tasks.php">All Tasks</a>
-        <a href="pendingtasks.php">Pending Tasks</a>
-        <a href="completedtasks.php">Completed Tasks</a>
-        <a href="overdue.php">Overdue Tasks</a>
-      </div>
+
+      <a class="trigger" href="changepassword.php">
+        <span class="material-icons">lock</span>
+        <span>Change Password</span>
+      </a>
 
       <a class="trigger" href="logout.php"><span class="material-icons">logout</span> Logout</a>
     </nav>
@@ -412,7 +393,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       <button class="hamburger" id="hamburger" aria-label="Toggle sidebar">
         <span class="material-icons">menu</span>
       </button>
-      <div>Edit Employee</div>
+      <div>Edit Profile</div>
     </div>
     <div>
       <span class="material-icons">notifications</span>
@@ -422,25 +403,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <!-- Main Content -->
   <main class="main-content" id="mainContent">
     <h4 class="mb-4 heading-colored">
-      <span class="material-icons me-2" style="vertical-align: middle;">edit</span> Update Employee Info
+      <span class="material-icons me-2" style="vertical-align: middle;">edit</span> Update My Info
     </h4>
 
     <?php if (!empty($error)): ?>
       <div class="alert alert-danger alert-dismissible fade show" role="alert">
-        <strong>Error!</strong> <?php echo htmlspecialchars($error); ?>
+        <?php echo htmlspecialchars($error); ?>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
       </div>
     <?php endif; ?>
 
     <?php if (!empty($success)): ?>
       <div class="alert alert-success alert-dismissible fade show" role="alert">
-        <strong>Success!</strong> <?php echo htmlspecialchars($success); ?>
+        <?php echo htmlspecialchars($success); ?>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
       </div>
     <?php endif; ?>
 
-    <form class="form-section" method="POST" id="updateEmployeeForm">
-      <h5 class="mb-4 heading-colored">Employee Information</h5>
+    <form class="form-section" method="POST" id="updateProfileForm">
+      <h5 class="mb-4 heading-colored">Personal Information</h5>
 
       <div class="row g-3">
         <div class="col-md-6">
@@ -449,17 +430,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
 
         <div class="col-md-6">
-          <label for="full_name" class="form-label">Full Name </label>
+          <label for="full_name" class="form-label">Full Name</label>
           <input type="text" class="form-control" id="full_name" name="full_name" value="<?php echo htmlspecialchars($employee['full_name']); ?>" required autocomplete="off">
         </div>
 
         <div class="col-md-6">
-          <label for="mobile_no" class="form-label">Mobile Number </label>
+          <label for="mobile_no" class="form-label">Mobile Number</label>
           <input type="tel" class="form-control" id="mobile_no" name="mobile_no" value="<?php echo htmlspecialchars($employee['mobile_no']); ?>" required autocomplete="off">
         </div>
 
         <div class="col-md-6">
-          <label for="gender" class="form-label">Gender </label>
+          <label for="gender" class="form-label">Gender</label>
           <select class="form-select" id="gender" name="gender" required>
             <option value="Male" <?php echo ($employee['gender'] == 'Male') ? 'selected' : ''; ?>>Male</option>
             <option value="Female" <?php echo ($employee['gender'] == 'Female') ? 'selected' : ''; ?>>Female</option>
@@ -468,23 +449,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
 
         <div class="col-md-6">
-          <label for="dob" class="form-label">Date of Birth </label>
+          <label for="dob" class="form-label">Date of Birth</label>
           <input type="date" class="form-control" id="dob" name="dob" value="<?php echo htmlspecialchars($employee['dob']); ?>" required>
         </div>
 
         <div class="col-md-6">
-          <label for="city" class="form-label">City </label>
+          <label for="city" class="form-label">City</label>
           <input type="text" class="form-control" id="city" name="city" value="<?php echo htmlspecialchars($employee['city']); ?>" required autocomplete="off">
         </div>
 
         <div class="col-md-6">
-          <label for="address" class="form-label">Address </label>
+          <label for="address" class="form-label">Address</label>
           <input type="text" class="form-control" id="address" name="address" value="<?php echo htmlspecialchars($employee['address']); ?>" required autocomplete="off">
         </div>
 
         <div class="col-12 mt-4">
           <button type="submit" name="update" class="btn btn-custom w-100">
-            Update Employee
+            Update Profile
           </button>
         </div>
       </div>
@@ -513,8 +494,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       }
     });
 
-    // Client-side validation
-    document.getElementById('updateEmployeeForm').addEventListener('submit', function(e) {
+    // js validation
+    document.getElementById('updateProfileForm').addEventListener('submit', function(e) {
         const fullName = document.getElementById('full_name').value.trim();
         const phone = document.getElementById('mobile_no').value.trim();
         const address = document.getElementById('address').value.trim();
@@ -572,7 +553,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         if (age < 18) {
-            alert("Employee must be at least 18 years old");
+            alert("You must be at least 18 years old");
             e.preventDefault();
             return false;
         }
