@@ -143,13 +143,13 @@ if (isset($_POST['signin'])) {
       </div>
     </form>
 
-    <!-- Back Link 
+     Back Link 
     <div class="back-link">
       <a href="../index.php">
         <span class="material-icons">arrow_back</span> Back
       </a>
     </div>
-  </div>-->
+  </div>
 
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>

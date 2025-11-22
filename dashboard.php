@@ -206,7 +206,7 @@
 </head>
 <body>
 
-  <!-- Sidebar -->
+  <!--Sidebar-->
   <aside class="sidebar" id="sidebar">
     <h3>TaskHub</h3>
 

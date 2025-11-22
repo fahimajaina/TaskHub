@@ -126,7 +126,7 @@ if (isset($_POST['signin'])) {
 </head>
 <body>
 
-  <!-- Login Form -->
+  <!-- Form -->
   <div class="card mt-5">
     <h4><span class="material-icons">person</span> Employee Login</h4>
     <form method="post" name="signin">
