@@ -431,14 +431,14 @@ if (isset($_SESSION['error'])) {
 
     <?php if (!empty($error)): ?>
       <div class="alert alert-danger alert-dismissible fade show" role="alert">
-        <strong>Error!</strong> <?php echo htmlspecialchars($error); ?>
+        <?php echo htmlspecialchars($error); ?>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
       </div>
     <?php endif; ?>
 
     <?php if (!empty($success)): ?>
       <div class="alert alert-success alert-dismissible fade show" role="alert">
-        <strong>Success!</strong> <?php echo htmlspecialchars($success); ?>
+        <?php echo htmlspecialchars($success); ?>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
       </div>
     <?php endif; ?>

@@ -219,7 +219,7 @@
       <a href="#" class="trigger active"><span class="material-icons">dashboard</span> Dashboard</a>
       <a href="mytasks.php" class="trigger"><span class="material-icons">task</span> My Task</a>
       <a href="profile.php" class="trigger"><span class="material-icons">person</span> Profile</a>
-      <a href="change-password.php" class="trigger"><span class="material-icons">lock</span> Change Password</a>
+      <a href="changepassword.php" class="trigger"><span class="material-icons">lock</span> Change Password</a>
       <a href="logout.php" class="trigger"><span class="material-icons">logout</span> Logout</a>
     </nav>
   </aside>
