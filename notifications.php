@@ -2,7 +2,7 @@
 session_start();
 require_once('include/config.php');
 
-// Check if employee is logged in
+// employee login check
 if (!isset($_SESSION['elogin'])) {
     header('location: index.php');
     exit();
@@ -17,7 +17,7 @@ if (isset($_POST['mark_read']) && !empty($_POST['notificationId'])) {
     $notificationId = intval($_POST['notificationId']);
     
     try {
-        // Verify notification belongs to logged-in employee
+        // Verify notification is of logged in employee
         $checkSql = "SELECT id FROM notifications WHERE id = :notificationId AND user_id = :userId";
         $checkStmt = $dbh->prepare($checkSql);
         $checkStmt->bindParam(':notificationId', $notificationId, PDO::PARAM_INT);
@@ -70,7 +70,7 @@ if (isset($_POST['delete_notification']) && !empty($_POST['notificationId'])) {
     $notificationId = intval($_POST['notificationId']);
     
     try {
-        // Verify notification belongs to logged-in employee
+        // Verify notification belongs to logged in employee
         $checkSql = "SELECT id FROM notifications WHERE id = :notificationId AND user_id = :userId";
         $checkStmt = $dbh->prepare($checkSql);
         $checkStmt->bindParam(':notificationId', $notificationId, PDO::PARAM_INT);
@@ -98,7 +98,7 @@ if (isset($_POST['delete_notification']) && !empty($_POST['notificationId'])) {
     exit();
 }
 
-// Fetch notifications for logged-in employee
+// Fetch notifications for logged in employee
 try {
     $sql = "SELECT * FROM notifications WHERE user_id = :userId ORDER BY created_at DESC";
     $query = $dbh->prepare($sql);
@@ -127,7 +127,7 @@ if (isset($_SESSION['error'])) {
     unset($_SESSION['error']);
 }
 
-// Function to get time ago
+// Function to get time 
 function timeAgo($datetime) {
     $timestamp = strtotime($datetime);
     $diff = time() - $timestamp;

@@ -2,7 +2,7 @@
 session_start();
 require_once('include/config.php');
 
-// Check if employee is logged in
+// employee login check
 if (!isset($_SESSION['elogin'])) {
     header('location: index.php');
     exit();
@@ -18,7 +18,7 @@ if (isset($_POST['update_status']) && !empty($_POST['taskId'])) {
     $newStatus = trim($_POST['status']);
     
     try {
-        // Verify task belongs to logged-in employee
+        // Verify task is of  logged in employee
         $checkSql = "SELECT id FROM tasks WHERE id = :taskId AND user_id = :userId";
         $checkStmt = $dbh->prepare($checkSql);
         $checkStmt->bindParam(':taskId', $taskId, PDO::PARAM_INT);
@@ -47,7 +47,7 @@ if (isset($_POST['update_status']) && !empty($_POST['taskId'])) {
     exit();
 }
 
-// Fetch tasks assigned to logged-in employee
+// Fetch tasks assigned to logged in employee
 try {
     $sql = "SELECT t.*, u.full_name, u.email 
             FROM tasks t 
@@ -80,7 +80,7 @@ if (isset($_SESSION['error'])) {
     unset($_SESSION['error']);
 }
 
-// Function to get status badge class
+// Function for status badge class
 function getStatusBadge($status) {
     switch($status) {
         case 'Completed':

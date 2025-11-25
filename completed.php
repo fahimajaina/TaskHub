@@ -2,7 +2,7 @@
 session_start();
 require_once('include/config.php');
 
-// Check if employee is logged in
+// employee login check
 if (!isset($_SESSION['elogin'])) {
     header('location: index.php');
     exit();
@@ -12,7 +12,7 @@ $userId = $_SESSION['eid'];
 $error = '';
 $success = '';
 
-// Fetch completed tasks assigned to logged-in employee
+// Fetch completed tasks assigned to logged in employee
 try {
     $sql = "SELECT t.*, u.full_name, u.email 
             FROM tasks t 
@@ -46,7 +46,7 @@ if (isset($_SESSION['error'])) {
     unset($_SESSION['error']);
 }
 
-// Function to get status badge class
+// Function for status badge class
 function getStatusBadge($status) {
     switch($status) {
         case 'Completed':

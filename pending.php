@@ -2,7 +2,7 @@
 session_start();
 require_once('include/config.php');
 
-// Check if employee is logged in
+// employee login check
 if (!isset($_SESSION['elogin'])) {
     header('location: index.php');
     exit();
@@ -12,7 +12,7 @@ $userId = $_SESSION['eid'];
 $error = '';
 $success = '';
 
-// Fetch pending tasks assigned to logged-in employee
+// Fetch pending tasks assigned to logged in employee
 try {
     $sql = "SELECT t.*, u.full_name, u.email 
             FROM tasks t 
@@ -46,7 +46,7 @@ if (isset($_SESSION['error'])) {
     unset($_SESSION['error']);
 }
 
-// Function to get status badge class
+// Function for status badge class
 function getStatusBadge($status) {
     switch($status) {
         case 'Completed':
@@ -60,7 +60,7 @@ function getStatusBadge($status) {
     }
 }
 
-// Function to check if task is overdue
+// Function to check overdue
 function isOverdue($dueDate) {
     if (empty($dueDate)) {
         return false;
@@ -408,13 +408,6 @@ function isOverdue($dueDate) {
       <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
           <?php echo htmlspecialchars($success); ?>
           <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-      </div>
-      <?php endif; ?>
-
-      <?php if(!empty($tasks)): ?>
-      <div class="alert-info-custom mb-4">
-        <span class="material-icons" style="vertical-align: middle; font-size: 20px;">info</span>
-        <strong>Note:</strong> You have <?php echo count($tasks); ?> pending task<?php echo count($tasks) != 1 ? 's' : ''; ?>. Start working on them to update their status.
       </div>
       <?php endif; ?>
 

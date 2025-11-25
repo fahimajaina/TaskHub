@@ -2,7 +2,7 @@
 session_start();
 require_once('include/config.php');
 
-// Check if employee is logged in
+// employee login check
 if (!isset($_SESSION['elogin'])) {
     header('location: index.php');
     exit();
@@ -12,7 +12,7 @@ $userId = $_SESSION['eid'];
 $error = '';
 $success = '';
 
-// Fetch tasks due today assigned to logged-in employee
+// Fetch tasks due today assigned to logged in employee
 try {
     $sql = "SELECT t.*, u.full_name, u.email 
             FROM tasks t 
@@ -47,7 +47,7 @@ if (isset($_SESSION['error'])) {
     unset($_SESSION['error']);
 }
 
-// Function to get status badge class
+// Function for status badge class
 function getStatusBadge($status) {
     switch($status) {
         case 'Completed':
@@ -401,13 +401,6 @@ function getStatusBadge($status) {
       <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
           <?php echo htmlspecialchars($success); ?>
           <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-      </div>
-      <?php endif; ?>
-
-      <?php if(!empty($tasks)): ?>
-      <div class="alert-info-custom mb-4">
-        <span class="material-icons" style="vertical-align: middle; font-size: 20px;">info</span>
-        <strong>Reminder:</strong> You have <?php echo count($tasks); ?> task<?php echo count($tasks) != 1 ? 's' : ''; ?> due today. Please prioritize completing them.
       </div>
       <?php endif; ?>
 

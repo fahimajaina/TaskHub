@@ -2,7 +2,7 @@
 session_start();
 require_once('include/config.php');
 
-// Check if employee is logged in
+// employee login check
 if (!isset($_SESSION['elogin'])) {
     header('location: index.php');
     exit();
@@ -12,7 +12,7 @@ $userId = $_SESSION['eid'];
 $error = '';
 $success = '';
 
-// Fetch overdue tasks assigned to logged-in employee
+// Fetch overdue tasks assigned to logged in employee
 try {
     $sql = "SELECT t.*, u.full_name, u.email 
             FROM tasks t 
@@ -47,7 +47,7 @@ if (isset($_SESSION['error'])) {
     unset($_SESSION['error']);
 }
 
-// Function to get status badge class
+// Function for status badge class
 function getStatusBadge($status) {
     switch($status) {
         case 'Completed':
@@ -61,7 +61,7 @@ function getStatusBadge($status) {
     }
 }
 
-// Function to calculate days overdue
+// Function to calculate overdue
 function daysOverdue($dueDate) {
     $due = strtotime($dueDate);
     $today = strtotime('today');
