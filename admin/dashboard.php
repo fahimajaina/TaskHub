@@ -1,3 +1,101 @@
+<?php
+session_start();
+require_once('include/config.php');
+
+// Admin login check
+if (!isset($_SESSION['alogin'])) {
+    header('location:index.php');
+    exit();
+}
+
+// Fetch total employees
+try {
+    $sql = "SELECT COUNT(*) as total_employees FROM users WHERE status = 1";
+    $query = $dbh->prepare($sql);
+    $query->execute();
+    $result = $query->fetch(PDO::FETCH_ASSOC);
+    $totalEmployees = $result['total_employees'];
+} catch(PDOException $e) {
+    $totalEmployees = 0;
+}
+
+// Fetch total tasks
+try {
+    $sql = "SELECT COUNT(*) as total_tasks FROM tasks";
+    $query = $dbh->prepare($sql);
+    $query->execute();
+    $result = $query->fetch(PDO::FETCH_ASSOC);
+    $totalTasks = $result['total_tasks'];
+} catch(PDOException $e) {
+    $totalTasks = 0;
+}
+
+// Fetch overdue tasks
+try {
+    $sql = "SELECT COUNT(*) as overdue_tasks FROM tasks WHERE status != 'Completed' AND due_date < CURDATE()";
+    $query = $dbh->prepare($sql);
+    $query->execute();
+    $result = $query->fetch(PDO::FETCH_ASSOC);
+    $overdueTasks = $result['overdue_tasks'];
+} catch(PDOException $e) {
+    $overdueTasks = 0;
+}
+
+// Fetch no deadline tasks
+try {
+    $sql = "SELECT COUNT(*) as no_deadline FROM tasks WHERE due_date IS NULL OR due_date = ''";
+    $query = $dbh->prepare($sql);
+    $query->execute();
+    $result = $query->fetch(PDO::FETCH_ASSOC);
+    $noDeadline = $result['no_deadline'];
+} catch(PDOException $e) {
+    $noDeadline = 0;
+}
+
+// Fetch due today tasks
+try {
+    $sql = "SELECT COUNT(*) as due_today FROM tasks WHERE due_date = CURDATE() AND status != 'Completed'";
+    $query = $dbh->prepare($sql);
+    $query->execute();
+    $result = $query->fetch(PDO::FETCH_ASSOC);
+    $dueToday = $result['due_today'];
+} catch(PDOException $e) {
+    $dueToday = 0;
+}
+
+// Fetch pending tasks
+try {
+    $sql = "SELECT COUNT(*) as pending_tasks FROM tasks WHERE status = 'Pending'";
+    $query = $dbh->prepare($sql);
+    $query->execute();
+    $result = $query->fetch(PDO::FETCH_ASSOC);
+    $pendingTasks = $result['pending_tasks'];
+} catch(PDOException $e) {
+    $pendingTasks = 0;
+}
+
+// Fetch in progress tasks
+try {
+    $sql = "SELECT COUNT(*) as in_progress FROM tasks WHERE status = 'In Progress'";
+    $query = $dbh->prepare($sql);
+    $query->execute();
+    $result = $query->fetch(PDO::FETCH_ASSOC);
+    $inProgress = $result['in_progress'];
+} catch(PDOException $e) {
+    $inProgress = 0;
+}
+
+// Fetch completed tasks
+try {
+    $sql = "SELECT COUNT(*) as completed_tasks FROM tasks WHERE status = 'Completed'";
+    $query = $dbh->prepare($sql);
+    $query->execute();
+    $result = $query->fetch(PDO::FETCH_ASSOC);
+    $completedTasks = $result['completed_tasks'];
+} catch(PDOException $e) {
+    $completedTasks = 0;
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -284,36 +382,37 @@
   <main class="main-content" id="mainContent">
     <div class="card-grid">
       <a class="card-link" href="manageemployee.php">
-        <div class="info-card"><span class="material-icons">groups</span><h5>3 Employee</h5></div>
+        <div class="info-card"><span class="material-icons">groups</span><h5><?php echo $totalEmployees; ?> Employee<?php echo $totalEmployees != 1 ? 's' : ''; ?></h5></div>
       </a>
 
-      <a class="card-link" href="alltasks.php">
-        <div class="info-card"><span class="material-icons">task</span><h5>15 All Tasks</h5></div>
+      <a class="card-link" href="tasks.php">
+        <div class="info-card"><span class="material-icons">task</span><h5><?php echo $totalTasks; ?> All Tasks</h5></div>
       </a>
 
       <a class="card-link" href="overdue.php">
-        <div class="info-card"><span class="material-icons">cancel</span><h5>5 Overdue</h5></div>
+        <div class="info-card"><span class="material-icons">cancel</span><h5><?php echo $overdueTasks; ?> Overdue</h5></div>
       </a>
 
       <a class="card-link" href="no-deadline.php">
-        <div class="info-card"><span class="material-icons">schedule</span><h5>1 No Deadline</h5></div>
+        <div class="info-card"><span class="material-icons">schedule</span><h5><?php echo $noDeadline; ?> No Deadline</h5></div>
       </a>
 
       <a class="card-link" href="duetoday.php">
-        <div class="info-card"><span class="material-icons">today</span><h5>2 Due Today</h5></div>
+        <div class="info-card"><span class="material-icons">today</span><h5><?php echo $dueToday; ?> Due Today</h5></div>
       </a>
 
       <a class="card-link" href="pendingtasks.php">
-        <div class="info-card"><span class="material-icons">pending</span><h5>13 Pending</h5></div>
+        <div class="info-card"><span class="material-icons">pending</span><h5><?php echo $pendingTasks; ?> Pending</h5></div>
       </a>
 
       <a class="card-link" href="inprogresstasks.php">
-        <div class="info-card"><span class="material-icons">autorenew</span><h5>1 In Progress</h5></div>
+        <div class="info-card"><span class="material-icons">autorenew</span><h5><?php echo $inProgress; ?> In Progress</h5></div>
       </a>
 
       <a class="card-link" href="completedtasks.php">
-        <div class="info-card"><span class="material-icons">check_circle</span><h5>1 Completed</h5></div>
+        <div class="info-card"><span class="material-icons">check_circle</span><h5><?php echo $completedTasks; ?> Completed</h5></div>
       </a>
+
     </div>
   </main>
 
