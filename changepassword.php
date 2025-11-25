@@ -13,7 +13,7 @@ $error = '';
 $success = '';
 $eid = $_SESSION['eid'];
 
-// Count unread notifications
+//Count unread notifications
 try {
     $unreadSql = "SELECT COUNT(*) as unread_count FROM notifications WHERE user_id = :userId AND is_read = 0";
     $unreadQuery = $dbh->prepare($unreadSql);
