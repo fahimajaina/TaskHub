@@ -413,9 +413,6 @@ if (isset($_POST['add'])) {
       </button>
       <div>Add Employee</div>
     </div>
-    <div>
-      <span class="material-icons">notifications</span>
-    </div>
   </header>
 
   <!-- Main Content -->

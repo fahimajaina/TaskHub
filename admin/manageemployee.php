@@ -400,9 +400,6 @@ if (isset($_SESSION['error'])) {
       </button>
       <div>Manage Employees</div>
     </div>
-    <div>
-      <span class="material-icons">notifications</span>
-    </div>
   </header>
 
   <!-- Main Content -->

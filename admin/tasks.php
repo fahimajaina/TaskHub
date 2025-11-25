@@ -434,9 +434,6 @@ function isOverdue($dueDate, $status) {
       </button>
       <div>All Tasks</div>
     </div>
-    <div>
-      <span class="material-icons">notifications</span>
-    </div>
   </header>
 
   <!-- Main Content -->

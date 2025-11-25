@@ -414,9 +414,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       </button>
       <div>Edit Employee</div>
     </div>
-    <div>
-      <span class="material-icons">notifications</span>
-    </div>
   </header>
 
   <!-- Main Content -->

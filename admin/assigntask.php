@@ -378,9 +378,6 @@ try {
       </button>
       <div>Assign Task</div>
     </div>
-    <div>
-      <span class="material-icons">notifications</span>
-    </div>
   </header>
 
   <!-- Main Content -->

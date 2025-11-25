@@ -278,9 +278,6 @@
       </button>
       <div>Dashboard</div>
     </div>
-    <div>
-      <span class="material-icons">notifications</span>
-    </div>
   </header>
 
   <!-- Main Content -->
@@ -304,10 +301,6 @@
 
       <a class="card-link" href="duetoday.php">
         <div class="info-card"><span class="material-icons">today</span><h5>2 Due Today</h5></div>
-      </a>
-
-      <a class="card-link" href="notifications.php">
-        <div class="info-card"><span class="material-icons">notifications</span><h5>5 Notifications</h5></div>
       </a>
 
       <a class="card-link" href="pendingtasks.php">
