@@ -361,7 +361,7 @@ try {
         <div class="info-card"><span class="material-icons">task</span><h5><?php echo $totalTasks; ?> My Tasks</h5></div>
       </a>
 
-      <a class="card-link" href="mytasks.php">
+      <a class="card-link" href="overdue.php">
         <div class="info-card"><span class="material-icons">cancel</span><h5><?php echo $overdueTasks; ?> Overdue</h5></div>
       </a>
 
