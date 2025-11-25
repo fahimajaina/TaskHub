@@ -13,6 +13,18 @@ $error = '';
 $success = '';
 $eid = $_SESSION['eid'];
 
+// Count unread notifications
+try {
+    $unreadSql = "SELECT COUNT(*) as unread_count FROM notifications WHERE user_id = :userId AND is_read = 0";
+    $unreadQuery = $dbh->prepare($unreadSql);
+    $unreadQuery->bindParam(':userId', $eid, PDO::PARAM_INT);
+    $unreadQuery->execute();
+    $unreadResult = $unreadQuery->fetch(PDO::FETCH_ASSOC);
+    $unreadCount = $unreadResult['unread_count'];
+} catch(PDOException $e) {
+    $unreadCount = 0;
+}
+
 // Handle form submission
 if (isset($_POST['change'])) {
     try {
@@ -229,6 +241,32 @@ if (isset($_POST['change'])) {
       padding: 6px;
     }
 
+    .notification-icon {
+      position: relative;
+      cursor: pointer;
+      padding: 8px;
+      border-radius: 50%;
+      transition: background-color 0.2s;
+    }
+
+    .notification-icon:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .notification-badge {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      background-color: #dc3545;
+      color: white;
+      border-radius: 50%;
+      padding: 2px 6px;
+      font-size: 10px;
+      font-weight: 600;
+      min-width: 18px;
+      text-align: center;
+    }
+
     /* Main Content */
     .main-content {
       margin-left: 240px;
@@ -345,8 +383,11 @@ if (isset($_POST['change'])) {
       </button>
       <div>Change Password</div>
     </div>
-    <div>
+    <div class="notification-icon" onclick="window.location.href='notifications.php'">
       <span class="material-icons">notifications</span>
+      <?php if ($unreadCount > 0): ?>
+      <span class="notification-badge"><?php echo $unreadCount; ?></span>
+      <?php endif; ?>
     </div>
   </header>
 
