@@ -365,7 +365,7 @@ try {
         <div class="info-card"><span class="material-icons">cancel</span><h5><?php echo $overdueTasks; ?> Overdue</h5></div>
       </a>
 
-      <a class="card-link" href="mytasks.php">
+      <a class="card-link" href="duetoday.php">
         <div class="info-card"><span class="material-icons">today</span><h5><?php echo $dueTodayTasks; ?> Due Today</h5></div>
       </a>
 
@@ -373,11 +373,11 @@ try {
         <div class="info-card"><span class="material-icons">notifications</span><h5><?php echo $unreadCount; ?> Notifications</h5></div>
       </a>
 
-      <a class="card-link" href="mytasks.php">
+      <a class="card-link" href="pending.php">
         <div class="info-card"><span class="material-icons">pending</span><h5><?php echo $pendingTasks; ?> Pending</h5></div>
       </a>
 
-      <a class="card-link" href="mytasks.php">
+      <a class="card-link" href="completed.php">
         <div class="info-card"><span class="material-icons">check_circle</span><h5><?php echo $completedTasks; ?> Completed</h5></div>
       </a>
 
