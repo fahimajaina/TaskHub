@@ -143,7 +143,7 @@ if (isset($_POST['signin'])) {
       </div>
     </form>
 
-     Back Link 
+     
     <div class="back-link">
       <a href="../index.php">
         <span class="material-icons">arrow_back</span> Back
