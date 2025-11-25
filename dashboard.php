@@ -1,8 +1,87 @@
+<?php
+session_start();
+require_once('include/config.php');
+
+// Check if employee is logged in
+if (!isset($_SESSION['elogin'])) {
+    header('location: index.php');
+    exit();
+}
+
+$userId = $_SESSION['eid'];
+$error = '';
+
+// Fetch dashboard statistics
+try {
+    // Total tasks
+    $totalSql = "SELECT COUNT(*) as total FROM tasks WHERE user_id = :userId";
+    $totalQuery = $dbh->prepare($totalSql);
+    $totalQuery->bindParam(':userId', $userId, PDO::PARAM_INT);
+    $totalQuery->execute();
+    $totalResult = $totalQuery->fetch(PDO::FETCH_ASSOC);
+    $totalTasks = $totalResult['total'];
+    
+    // Pending tasks
+    $pendingSql = "SELECT COUNT(*) as pending FROM tasks WHERE user_id = :userId AND status = 'Pending'";
+    $pendingQuery = $dbh->prepare($pendingSql);
+    $pendingQuery->bindParam(':userId', $userId, PDO::PARAM_INT);
+    $pendingQuery->execute();
+    $pendingResult = $pendingQuery->fetch(PDO::FETCH_ASSOC);
+    $pendingTasks = $pendingResult['pending'];
+
+    // Completed tasks
+    $completedSql = "SELECT COUNT(*) as completed FROM tasks WHERE user_id = :userId AND status = 'Completed'";
+    $completedQuery = $dbh->prepare($completedSql);
+    $completedQuery->bindParam(':userId', $userId, PDO::PARAM_INT);
+    $completedQuery->execute();
+    $completedResult = $completedQuery->fetch(PDO::FETCH_ASSOC);
+    $completedTasks = $completedResult['completed'];
+    
+    // Overdue tasks (past due date and not completed)
+    $overdueSql = "SELECT COUNT(*) as overdue FROM tasks 
+                   WHERE user_id = :userId 
+                   AND status != 'Completed' 
+                   AND due_date < CURDATE()";
+    $overdueQuery = $dbh->prepare($overdueSql);
+    $overdueQuery->bindParam(':userId', $userId, PDO::PARAM_INT);
+    $overdueQuery->execute();
+    $overdueResult = $overdueQuery->fetch(PDO::FETCH_ASSOC);
+    $overdueTasks = $overdueResult['overdue'];
+    
+    // Due today tasks (due date is today and not completed)
+    $dueTodaySql = "SELECT COUNT(*) as due_today FROM tasks 
+                    WHERE user_id = :userId 
+                    AND status != 'Completed' 
+                    AND due_date = CURDATE()";
+    $dueTodayQuery = $dbh->prepare($dueTodaySql);
+    $dueTodayQuery->bindParam(':userId', $userId, PDO::PARAM_INT);
+    $dueTodayQuery->execute();
+    $dueTodayResult = $dueTodayQuery->fetch(PDO::FETCH_ASSOC);
+    $dueTodayTasks = $dueTodayResult['due_today'];
+    
+    // Unread notifications
+    $unreadSql = "SELECT COUNT(*) as unread_count FROM notifications WHERE user_id = :userId AND is_read = 0";
+    $unreadQuery = $dbh->prepare($unreadSql);
+    $unreadQuery->bindParam(':userId', $userId, PDO::PARAM_INT);
+    $unreadQuery->execute();
+    $unreadResult = $unreadQuery->fetch(PDO::FETCH_ASSOC);
+    $unreadCount = $unreadResult['unread_count'];
+    
+} catch(PDOException $e) {
+    $error = "Error fetching dashboard data: " . $e->getMessage();
+    $totalTasks = 0;
+    $pendingTasks = 0;
+    $completedTasks = 0;
+    $overdueTasks = 0;
+    $dueTodayTasks = 0;
+    $unreadCount = 0;
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>TaskHub Employee Dashboard</title>
+  <title>Dashboard | TaskHub</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -134,6 +213,32 @@
       padding: 6px;
     }
 
+    .notification-icon {
+      position: relative;
+      cursor: pointer;
+      padding: 8px;
+      border-radius: 50%;
+      transition: background-color 0.2s;
+    }
+
+    .notification-icon:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .notification-badge {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      background-color: #dc3545;
+      color: white;
+      border-radius: 50%;
+      padding: 2px 6px;
+      font-size: 10px;
+      font-weight: 600;
+      min-width: 18px;
+      text-align: center;
+    }
+
     /*Main content*/
     .main-content {
       margin-left: 240px;
@@ -212,13 +317,13 @@
 
     <div class="profile">
       <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" alt="Profile">
-      <p>Employee</p>
+      <p><?php echo htmlspecialchars($_SESSION['ename']); ?></p>
     </div>
 
     <nav class="nav-links">
-      <a href="#" class="trigger active"><span class="material-icons">dashboard</span> Dashboard</a>
-      <a href="mytasks.php" class="trigger"><span class="material-icons">task</span> My Task</a>
-      <a href="profile.php" class="trigger"><span class="material-icons">person</span> Profile</a>
+      <a href="dashboard.php" class="trigger active"><span class="material-icons">dashboard</span> Dashboard</a>
+      <a href="mytasks.php" class="trigger"><span class="material-icons">task</span> My Tasks</a>
+      <a href="profile.php" class="trigger"><span class="material-icons">person</span> My Profile</a>
       <a href="changepassword.php" class="trigger"><span class="material-icons">lock</span> Change Password</a>
       <a href="logout.php" class="trigger"><span class="material-icons">logout</span> Logout</a>
     </nav>
@@ -230,38 +335,50 @@
       <button class="hamburger" id="hamburger">
         <span class="material-icons">menu</span>
       </button>
-      <div>Employee Dashboard</div>
+      <div>Dashboard</div>
     </div>
-    <span class="material-icons">notifications</span>
+    <div class="notification-icon" onclick="window.location.href='notifications.php'">
+      <span class="material-icons">notifications</span>
+      <?php if ($unreadCount > 0): ?>
+      <span class="notification-badge"><?php echo $unreadCount; ?></span>
+      <?php endif; ?>
+    </div>
   </header>
 
   <!-- Main Content -->
   <main class="main-content" id="mainContent">
 
+    <?php if($error): ?>
+    <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+        <?php echo htmlspecialchars($error); ?>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <?php endif; ?>
+
     <div class="card-grid">
 
       <a class="card-link" href="mytasks.php">
-        <div class="info-card"><span class="material-icons">task</span><h5>10 My Tasks</h5></div>
+        <div class="info-card"><span class="material-icons">task</span><h5><?php echo $totalTasks; ?> My Tasks</h5></div>
       </a>
 
-      <a class="card-link" href="overdue.php">
-        <div class="info-card"><span class="material-icons">cancel</span><h5>3 Overdue</h5></div>
+      <a class="card-link" href="mytasks.php">
+        <div class="info-card"><span class="material-icons">cancel</span><h5><?php echo $overdueTasks; ?> Overdue</h5></div>
       </a>
 
-      <a class="card-link" href="duetoday.php">
-        <div class="info-card"><span class="material-icons">today</span><h5>2 Due Today</h5></div>
+      <a class="card-link" href="mytasks.php">
+        <div class="info-card"><span class="material-icons">today</span><h5><?php echo $dueTodayTasks; ?> Due Today</h5></div>
       </a>
 
       <a class="card-link" href="notifications.php">
-        <div class="info-card"><span class="material-icons">notifications</span><h5>6 Notifications</h5></div>
+        <div class="info-card"><span class="material-icons">notifications</span><h5><?php echo $unreadCount; ?> Notifications</h5></div>
       </a>
 
-      <a class="card-link" href="pending.php">
-        <div class="info-card"><span class="material-icons">pending</span><h5>5 Pending</h5></div>
+      <a class="card-link" href="mytasks.php">
+        <div class="info-card"><span class="material-icons">pending</span><h5><?php echo $pendingTasks; ?> Pending</h5></div>
       </a>
 
-      <a class="card-link" href="completed.php">
-        <div class="info-card"><span class="material-icons">check_circle</span><h5>1 Completed</h5></div>
+      <a class="card-link" href="mytasks.php">
+        <div class="info-card"><span class="material-icons">check_circle</span><h5><?php echo $completedTasks; ?> Completed</h5></div>
       </a>
 
     </div>
